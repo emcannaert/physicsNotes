@@ -1,0 +1,32 @@
+skip_lv_check system will always check if the front-end is on 
+	- to skip, enable this so we can run without the front-end on 
+	- when ccus are stuck due to seus, they don't communciate with tkfec and pixelfec, if you need to configure front-end, they will not respond and you can't communicate with them
+		-in in part of code in Abbas' talk, you can see part of code responsible for this
+		- if ccu is stuck in a run and they want to cnfigure pixel for some reason, the configuration will crash and this is a disaster
+		- what we can do is tell system if there is a ccu that isn't communicating to forget about it
+		- do this by changing flag to true, and if ccu is stuck in the middle of a run, they will be able to configure
+		- don't configure the ccus that have seus (they have old configuration and this should work) and only configure ones with which we have communication
+		- can only do one thing - if we can find a way to figure out from logs in the middle of the run which ccus are blocked/have a seu 
+
+		- ways to do this
+			- look at log files when there is a crash and try to find which messages you get from this 
+			- ask Nicolas and will what they were doing to contact CCUs
+
+
+look at where ccus are configured - there should be code here to deal with when it isn't configured
+this is a loop that resets CCUs (?)
+ScanCCU in opstools that can be executed within code - tells if you can communicate with a CCU
+	- returns list of all CCUs seen by scan, gives either error or list shorter than total # CCUs 
+
+they were finding that this type of thing crashes POS with some probability 
+sometimes scanCCU fails, have to put a reset in at least once (not getting aresponse once doesn't necessarily mean the CCU is stuck) 
+
+problem - sometimes you don't get back what you expect and POS doesn't know how to deal with it
+
+
+at the end of a fill it would be good to know this because we do stuff and need to reconfigure
+in middle of data-taking in case we active the lv_check thing, we are fine unless we try to push a new configuration
+how to prevent POS from crashing if there's an exception in the fec loop (?)
+
+
+tkfec software (external software)  
