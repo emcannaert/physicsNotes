@@ -30,3 +30,74 @@ how to prevent POS from crashing if there's an exception in the fec loop (?)
 
 
 tkfec software (external software)  
+
+
+
+
+-scan ring for each FEC to find all CCUs 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+  std::list<keyType> *ccuList = NULL ;
+  try { 
+	     
+
+    // Scan the ring for each FECs and display the CCUs
+    //keyType indexFEC = buildFecRingKey(fecAddress,ringAddress);
+    //ccuList = fecAccess->getCcuList ( indexFEC, noBroadcast ) ;
+    ccuList = fecAccess->getCcuList ( buildFecRingKey(fecAddress,ringAddress), noBroadcast ) ;
+        
+    if (ccuList != NULL) {
+
+      for (std::list<keyType>::iterator p=ccuList->begin();p!=ccuList->end();p++) {
+      
+	keyType index = *p ;
+
+	std::cout << std::hex << "FEC 0x" << (int)getFecKey(index) 
+	  << " Ring 0x" << (int)getRingKey(index) 
+	  << " CCU 0x" << (int)getCcuKey(index)
+	  << " found" << std::endl  ;
+      }
+    }
+    else {
+     
+      o << std::endl << "No CCU found on FECs" << std::endl ;
+    }  
+  }
+  catch (FecExceptionHandler e) {
+
+    o << std::endl << "*********** ERROR ********************************" << std::endl ; 
+    o << "An error occurs during hardware access" << std::endl ;
+    o << e.what()  << std::endl ;
+    o << "**************************************************" << std::endl ;
+  }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+this will all be done in tkfecsupervisor
+find skip_lv_check
+	- track this and find how the tkfec knows that the front end is off or on
+	- find lnk between tkfec and ccus 
+
+- abbas' idea: ask each ccu for its name and then see if you get a response that makes sense 
+
+
+-if you're running pos and then try to communicate with a ccu throughs scanccu in another window, this shouldn't crash pos, but resetccu will 
+
+- we changed flag skip_lv_check, all we need to do is see which ccus are not responding
+	- we can have an independent script running 24/7 that gets status of ccus 
+	- independent of pos
+
+- the skip_lv_check causes another problem  
+
+
+- what grace wrote has some ineraction with ccus,could look at ther script and see how the script communicates with ccus
+	- her script is given a list, then you tell it to connect to specific ccus, so it doesn't scan over all 
+
+- look at nicolas and will's loop (in the tkfecsupervisor) and find out how they were looping over ccus and then which command they used for communication
+	- this might still exist in r84 or 83, look in their elog
+	- "disable ccu loop"? - called something like this 
+
